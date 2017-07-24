@@ -92,7 +92,7 @@ public class EventManager {
      * @param y 
      * @return  
      */
-    public int[] convertCoordinates(int x, int y){
+    public int[] convertCoordinatesToLocal(int x, int y){
         
         //int newX = 0, newY = 0;
         int[] convCoordinates = new int[2];
@@ -113,6 +113,15 @@ public class EventManager {
         return convCoordinates;
     }
     
+    public int[] convertCoordinatesToUser(int x, int y){
+        
+        int[] userCoordinates = new int[2];
+        userCoordinates[0] = (x-10);
+        userCoordinates[1] = (y-10);
+        
+        return userCoordinates;
+    }
+    
     /**
      * localizes the 5 closest events
      * takes raw coordinates for now
@@ -124,7 +133,7 @@ public class EventManager {
         //TODO:
         
         // 1. convert the user supplied coordinates
-        int[] x_y = convertCoordinates(x, y);
+        int[] x_y = convertCoordinatesToLocal(x, y);
         
         // 2. get closest events by kernel
         ArrayList<Integer> nearbyEvents = getNearbyEvents(x_y[0],x_y[1]);

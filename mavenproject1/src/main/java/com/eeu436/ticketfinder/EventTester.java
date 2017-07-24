@@ -7,7 +7,7 @@ package com.eeu436.ticketfinder;
 
 /**
  *
- * @author Mepnomon
+ * @author D.B. Dressler
  */
 public class EventTester {
     

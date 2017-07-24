@@ -1,5 +1,7 @@
 package com.eeu436.ticketfinder;
 
+import java.util.Arrays;
+
 /**
  *
  * @author D.B. Dressler
@@ -40,6 +42,8 @@ public class EventManagerTest {
             String s[] = test.getEventTickets(closest[1][i], closest[2][i]);
             System.out.println("Event id: " + test.getEventID(closest[1][i], closest[2][i]));
             System.out.println("Distance: " + closest[0][i]);
+            int[] userCoordinates = test.convertCoordinatesToUser(closest[1][i], closest[2][i]);
+            System.out.println("User coordinnates:" + Arrays.toString(userCoordinates));
             for(String str : s){
                 System.out.println(str);
             }
