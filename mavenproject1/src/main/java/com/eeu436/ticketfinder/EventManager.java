@@ -172,7 +172,6 @@ public class EventManager {
 
         //4. Sort by distance (closest first)
         sort(closeEvents, 0, (int)size-1);
-        
         // Array to return data 5 closest events
         int[][] returnArr = new int[3][5];
         

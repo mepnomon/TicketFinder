@@ -12,9 +12,10 @@ public class TicketFinderMain {
     //Globals
     EventManager manager = new EventManager();
     
+    //welcome message
     public void showWelcome(){
         System.out.println("********************************************");
-        System.out.println("TICKET FINDER V 0.8 - D.B. Dressler (c) 2017\n\n");
+        System.out.println("TICKET FINDER V 1.0 - D.B. Dressler 2017\n\n");
     }
     
     /**
@@ -66,7 +67,9 @@ public class TicketFinderMain {
             if(exitFlag){
                 break;
             }
+            //reset boolean
             isValid = false;
+            //print events
             printEvents(x, y);
             
             while(!isValid){
@@ -92,7 +95,7 @@ public class TicketFinderMain {
     }
     
     /**
-     * 
+     * Prints events
      * @param x
      * @param y 
      */
