@@ -99,15 +99,15 @@ public class EventManager {
         
         //check if valid range - not really necessary
         //check from caller
-        if(x > (-11) && x < 11 && y > (-11) && y < 11){
+        //if(x > (-11) && x < 11 && y > (-11) && y < 11){
             //System.out.println("x input= " + x);
             //coonvert
             convCoordinates[0] = (x + 10);
             convCoordinates[1] = (y + 10);
-        } else {
+        //} else {
             //error, out of bounds
-            System.out.println("Out of bounds");
-        }
+            //System.out.println("Out of bounds");
+       //}
         
         //return the converted coordinates
         return convCoordinates;
@@ -134,7 +134,7 @@ public class EventManager {
         
         // 1. convert the user supplied coordinates
         int[] x_y = convertCoordinatesToLocal(x, y);
-        
+        System.out.println("Convert to: " + x_y[0] + " " + x_y[1]);
         // 2. get closest events by kernel
         ArrayList<Integer> nearbyEvents = getNearbyEvents(x_y[0],x_y[1]);
         
@@ -344,7 +344,7 @@ public class EventManager {
         ArrayList<Integer> arrList = new ArrayList<>();
         int ticketsFound = 0;
         //initial range for 3x3 kernel
-        int range = 3;
+        int range = 1;
         //initialze start positions
         int startRow = 0;
         int startCol = 0;
@@ -355,35 +355,34 @@ public class EventManager {
             //reset arraylist
             arrList.clear();
            //System.out.println("new loop " + range);
-            
-            //check boundary cases for kernel offset
-            if((offsRow - range) >= 0 || offsRow - range < 20){
+           
+            if((offsRow - range) >= 0 && (offsRow - range) < 20){
                 startRow = offsRow-range;
                 System.out.println("case 0 " + startRow);
             }
             
-            if((offsCol - range) >= 0 || offsCol - range < 20){
+            if((offsCol - range) >= 0 && (offsCol - range) < 20){
                 startCol = offsRow-range;
                 System.out.println("case 1 " + startCol);
             }
-            
-            
-            if((offsRow - range) < 0){
+           
+            //check boundary cases for kernel offset
+            if((offsRow - range) < 0 || startRow < 0){
                 startRow = 0;
                 System.out.println("case 2 " + startRow);
             }
             
-            if((offsCol - range) < 0){
+            if((offsCol - range) < 0 || startCol < 0){
                 startCol = 0;
                 System.out.println("case 3 " + startCol);
             }
             
-            if(offsCol >= 20){
+            if(offsCol >= 20 || startCol >=20){
                 startCol = 20-range;
                 System.out.println("case 4 " + startCol);
             }
             
-            if(offsRow >= 20){
+            if(offsRow >= 20 || startRow >= 20){
                 startRow = 20-range;
                 System.out.println("Case 5 " + startRow);
             }
