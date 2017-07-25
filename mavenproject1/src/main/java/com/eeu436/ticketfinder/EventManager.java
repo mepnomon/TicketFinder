@@ -1,13 +1,11 @@
 package com.eeu436.ticketfinder;
 
 import java.util.*;
-//import java.util.*;
 /**
- * Manhattan distance test class.
- * Implements the ability to populate a grid
- * Find the Manhattan distance between two places
- * Find the nearest five venues that have the value 1
- * 
+ * TicketFinder - Event Manager
+ * Class Manages events, e.g. generation and population of seed data.
+ * Includes search and sorting algorithms for grid-world.
+ * Public methods can be called from other classes.
  * @author D.B. Dressler
  */
 public class EventManager {
@@ -282,6 +280,17 @@ public class EventManager {
         String[] tickets = anEvent.getTickets();
         //rerturn tickets
         return tickets;
+    }
+    
+    /**
+     * Retrieves cheapest ticket from an Event
+     * @param row event row
+     * @param col event column
+     * @return the cheapest ticket
+     */
+    public String getCheapestEventTicket(int row, int col){
+        Event anEvent = eventGrid[row][col];
+        return anEvent.getCheapestTicket();
     }
     
     public int getEventID(int x, int y){

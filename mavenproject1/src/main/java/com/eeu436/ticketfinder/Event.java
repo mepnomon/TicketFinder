@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- *
+ * Event Object. Used to create an event.
  * @author D.B. Dressler
  */
 public class Event {
@@ -72,15 +72,28 @@ public class Event {
      * @return an array of tickets
      */
     public String[] getTickets(){
-        
+        //return sold out if no tickets
         if(tickets.length == 0){
             tickets = new String[1];
             String returnString = "Sorry! All sold out.";
             tickets[0] = returnString;
             return tickets;
-        } else {
+        } else { //return tickets
            return tickets;  
         }
+    }
+    
+    /**
+     * Gets the cheapest ticket.
+     * @return 
+     */
+    public String getCheapestTicket(){
+       
+        // if no tickets available
+        if(tickets.length == 0){
+           return "Sorry! All sold out.";
+        }
+        return tickets[0];
     }
     
     

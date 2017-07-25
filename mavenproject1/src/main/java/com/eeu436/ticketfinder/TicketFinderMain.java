@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 /**
  * Ticket Finder Main Entry Point
+ * Also contains "game logic".
  * @author D.B. Dressler
  */
 public class TicketFinderMain {
@@ -30,10 +31,11 @@ public class TicketFinderMain {
         while(!gameOver){
         boolean exitFlag = false;  
             String input = "";
-            
+            String input1 = "";
             //make sure coordinate input is valid
             while(!isValid){
-                System.out.println("Enter your coordinates! From -10 to 10 (incl)");
+                System.out.println("Enter your coordinates! From -10 to "
+                        + "10 (incl)");
                 System.out.print("Enter Row:> ");
                 //get next user input parameter
                 input = sc.nextLine();
@@ -44,19 +46,20 @@ public class TicketFinderMain {
                     break;
                 }
                 System.out.print("Enter Col:> ");
-                input = sc.nextLine();
+                input1 = sc.nextLine();
                 input = input.toLowerCase();
                 if(input.equals("exit")){
                     exitFlag = true;
                     break;
                 }
                 x = Integer.parseInt(input);
-                y = Integer.parseInt(input);
+                y = Integer.parseInt(input1);
                 if(x >= -10 && x <= 10 && y >= -10 && y <= 10){
                     isValid = true;
                 } else {
                     System.out.println("Please Enter valid coordinates.");
-                    System.out.println("x,y in range of -10 to 10 (inclusive)\n");
+                    System.out.println("x,y in range of -10 to 10 "
+                            + "(inclusive)\n");
                 }
             }
             //check if user selected to exit
@@ -69,7 +72,7 @@ public class TicketFinderMain {
             while(!isValid){
                 System.out.print("\n\nSearch for another location Y/N:>");
                 input = sc.nextLine();
-                input.toLowerCase();
+                input = input.toLowerCase();
                 
                 if(input.charAt(0) == 'n'){
                     gameOver = true;
@@ -82,8 +85,9 @@ public class TicketFinderMain {
                 }
             }
             isValid = false;
+            //sc.nextLine();
         }
-        System.out.println("\n\nThank you for using TicketFinder");
+        System.out.println("\n\nThank you for using TicketFinder!");
         sc.close();
     }
     
@@ -94,7 +98,7 @@ public class TicketFinderMain {
      */
     private void printEvents(int x, int y){
         int[][] eventsNearby = manager.getClosestEvents(x, y);
-            System.out.println("\n 5 events closest to (" + x + "," + y + "):");
+            System.out.println("\n5 events closest to (" + x + "," + y + "):");
             for(int i = 0; i < eventsNearby[0].length; i++){
                 int j = eventsNearby[1][i];
                 int k = eventsNearby[2][i];
@@ -104,8 +108,8 @@ public class TicketFinderMain {
                 int dist = eventsNearby[0][i];
                 int id = manager.getEventID(j, k);
                 System.out.print("\nEvent " + id + " at(" + worldJ + ", " 
-                        + worldK +")," + dist + "KM");
-                getEventTickets(j, k);
+                        + worldK +")," + dist + " KM away - ");
+                getCheapestEventTicket(j, k);
             }
     }
     
@@ -114,15 +118,14 @@ public class TicketFinderMain {
      * @param eventRow
      * @param eventCol 
      */
-    private void getEventTickets(int eventRow,int eventCol){
-        String[] tickets = manager.getEventTickets(eventRow, eventCol);
-        System.out.println("\nTickets available:");
-        for(String s : tickets){
-            System.out.println(s);
-        }
+    private void getCheapestEventTicket(int eventRow, int eventCol){
+        System.out.print(manager.getCheapestEventTicket(eventRow, eventCol));
     }
     
-    
+    /**
+     * Main entry point
+     * @param args 
+     */
     public static void main(String[] args){
         
         TicketFinderMain m = new TicketFinderMain();
