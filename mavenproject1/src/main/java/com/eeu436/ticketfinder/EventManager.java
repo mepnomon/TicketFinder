@@ -34,7 +34,7 @@ public class EventManager {
         generator = new Random();
         
         //percentage of fields with an event
-        double percentage = 0.50;
+        double percentage = 0.25;
         //create the world
         populateGridsWithSeedData(percentage);
         
