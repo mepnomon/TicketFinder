@@ -334,20 +334,20 @@ public class EventManager {
     /**
      * Generates a kernel a dynamically increasing kernel
      * Finds the events in this kernel
-     * @param offsX the user's x
-     * @param offsY the user's y
+     * @param offsRow the user's x
+     * @param offsCol the user's y
      * @return an List of X,Y coordinates, whitespace separated
      */
             
-    public ArrayList<Integer> getNearbyEvents(int offsX, int offsY){
+    public ArrayList<Integer> getNearbyEvents(int offsRow, int offsCol){
         //local variables
         ArrayList<Integer> arrList = new ArrayList<>();
         int ticketsFound = 0;
         //initial range for 3x3 kernel
-        int range = 1;
+        int range = 3;
         //initialze start positions
-        int startX = 0;
-        int startY = 0;
+        int startRow = 0;
+        int startCol = 0;
         //iterate until 5 or more ave been found
         while(ticketsFound <= 5){
             //reset tickets count
@@ -357,38 +357,44 @@ public class EventManager {
            //System.out.println("new loop " + range);
             
             //check boundary cases for kernel offset
-            if(offsX - range >= 0 || offsY - range < 20){
-                startX = offsX-range;
+            if((offsRow - range) >= 0 || offsRow - range < 20){
+                startRow = offsRow-range;
+                System.out.println("case 0 " + startRow);
             }
             
-            if(offsY - range >= 0 || offsY - range < 20){
-                startY = offsX-range;
+            if((offsCol - range) >= 0 || offsCol - range < 20){
+                startCol = offsRow-range;
+                System.out.println("case 1 " + startCol);
             }
             
             
-            if(offsX - range < 0){
-                startX = 0;
+            if((offsRow - range) < 0){
+                startRow = 0;
+                System.out.println("case 2 " + startRow);
             }
             
-            if(offsY - range < 0){
-                startY = 0;
+            if((offsCol - range) < 0){
+                startCol = 0;
+                System.out.println("case 3 " + startCol);
             }
             
-            if(offsY >= 20){
-                startY = 20-range;
-                //System.out.println("start Y" + startY);
+            if(offsCol >= 20){
+                startCol = 20-range;
+                System.out.println("case 4 " + startCol);
             }
             
-            if(offsX >= 20){
-                startX = 20-range;
-                //System.out.println("start X" + startX);
+            if(offsRow >= 20){
+                startRow = 20-range;
+                System.out.println("Case 5 " + startRow);
             }
             
             //traverse kernel searching for events
-            for(int i = startX; i <= startX+range; i++){
-                for(int j = startY; j <=startY+range;j++){
+            for(int i = startRow; i <= startRow+range; i++){
+                for(int j = startCol; j <=startCol+range;j++){
+                    System.out.println("start Row " + startRow);
+                    System.out.println("Start Col " + startCol);
                     //exclude user position
-                    if(i == offsX && j == offsY){
+                    if(i == offsRow && j == offsCol){
                         //System.out.println("Your position");
 
                     } else {
