@@ -13,10 +13,17 @@ import java.util.*;
 public class EventManager {
 
     //Globals
+    //Random number generator
     Random generator;
+    //maximum world size (for logic)
     final int WORLD_SIZE = 21;
-    int[][] gridShadowArr = new int[WORLD_SIZE][WORLD_SIZE];
-    Event[][] eventArr = new Event[WORLD_SIZE][WORLD_SIZE];
+    //conversion for coordinates
+    final int CONVERT_C = 10;
+    //stores number of events
+    int[][] mapGrid = new int[WORLD_SIZE][WORLD_SIZE];
+    //stores events
+    Event[][] eventGrid = new Event[WORLD_SIZE][WORLD_SIZE];
+    //used in merge sort
     int[][] mergeArray;
     
     
@@ -25,8 +32,13 @@ public class EventManager {
      */
     public EventManager(){
         
+        //initialize RNG
         generator = new Random();
-        createEventGrid();
+        
+        //percentage of fields with an event
+        double percentage = 0.50;
+        //create the world
+        populateGridsWithSeedData(percentage);
         
     }
     
@@ -37,31 +49,37 @@ public class EventManager {
     public void printArr(){
         for(int i = 0; i < WORLD_SIZE; i++){
             for(int j = 0; j < WORLD_SIZE; j++){
-                System.out.print(gridShadowArr[i][j] + " ");
+                System.out.print(mapGrid[i][j] + " ");
             }
             System.out.println();
         }
     }
     
     /**
-     * 
+     * Populates grids with seed data
+     * @param eventPercentage denotes the percentage of cells with an event
      */
-    public void createEventGrid(){
+    private void populateGridsWithSeedData(double eventPercentage){
        
+        //local variables
         float rand;
-        int id = 0;
-        //populate array
+        int id = 0; //unique id for an event
+        int isEvent = 1;
+        int isNotEvent = 0;
+        //populate arrays
         for(int i = 0; i < WORLD_SIZE; i++){
             for(int j = 0; j < WORLD_SIZE; j++){
                 rand = generator.nextFloat();
-                //System.out.println(rand);
-                if(rand < 0.25){
-                    gridShadowArr[i][j] = 1;
-                    eventArr[i][j] = new Event(i, j, id++);
-                    //get real x y coordinates
+                
+                //is an event
+                if(rand < eventPercentage){
+                    //define event in mapGrid
+                    mapGrid[i][j] = isEvent; //1 for event
+                    //instantiate new event in eventGrid
+                    eventGrid[i][j] = new Event(i, j, id++);
                     
-                } else {
-                    gridShadowArr[i][j] = 0;
+                } else { //not an event
+                    mapGrid[i][j] = isNotEvent;
                 }
                     
             }
@@ -70,116 +88,96 @@ public class EventManager {
     
     
     /**
-     * Calculates Manhattan distance between points
-     * @param x
-     * @param y
-     * @param eventX
-     * @param eventY
-     * @return 
+     * Calculates Manhattan distance between points.
+     * Uses local coordinates (logic-based)
+     * @param usrR user's location Row
+     * @param usrC user's location Column
+     * @param eventR event in Row
+     * @param eventC event in Column
+     * @return Manhattan distance
      */
-    public float getManhattanDistance(int x, int y, int eventX, int eventY){
-
-            float dist = Math.abs(x  - eventX) + Math.abs(y - eventY);
+    private float getManhattanDistance(int usrR, int usrC, int eventR, 
+            int eventC){
+            
+            //calculate Manhattan Distance
+            float dist = Math.abs(usrR  - eventR) + Math.abs(usrC - eventC);
+            //return distance
             return dist;
-            //System.out.println(dist);
         }
     
     
     /**
-     * Convert a range of coordinates from -10 to 10
-     * into 0 to 20
-     * @param x
-     * @param y 
-     * @return  
+     * Converts world coordinates to local.
+     * @param row
+     * @param col 
+     * @return  a set of converted x, y coordinates
      */
-    public int[] convertCoordinatesToLocal(int x, int y){
+    private int[] convertCoordinatesToLocal(int row, int col){
         
-        //int newX = 0, newY = 0;
-        int[] convCoordinates = new int[2];
-        
-        //check if valid range - not really necessary
-        //check from caller
-        //if(x > (-11) && x < 11 && y > (-11) && y < 11){
-            //System.out.println("x input= " + x);
-            //coonvert
-            convCoordinates[0] = (x + 10);
-            convCoordinates[1] = (y + 10);
-        //} else {
-            //error, out of bounds
-            //System.out.println("Out of bounds");
-       //}
+        //array to store set of coordinates
+        int[] localCoordinates = new int[2];
+        //convert
+        localCoordinates[0] = (row + CONVERT_C);
+        localCoordinates[1] = (col + CONVERT_C);
         
         //return the converted coordinates
-        return convCoordinates;
-    }
-    
-    public int[] convertCoordinatesToUser(int x, int y){
-        
-        int[] userCoordinates = new int[2];
-        userCoordinates[0] = (x-10);
-        userCoordinates[1] = (y-10);
-        
-        return userCoordinates;
+        return localCoordinates;
     }
     
     /**
-     * localizes the 5 closest events
-     * takes raw coordinates for now
-     * @param x
-     * @param y
+     * Converts local coordinates to world, for user 
+     * @param row
+     * @param col
      * @return 
      */
+    public int[] convertCoordinatesToWorld(int row, int col){
+        //array to store set of coordinates
+        int[] worldCoordinates = new int[2];
+        //convert
+        worldCoordinates[0] = (row-CONVERT_C);
+        worldCoordinates[1] = (col-CONVERT_C);
+        //return converted coordinates
+        return worldCoordinates;
+    }
+    
+    /**
+     * Gets the 5 closest events from a user position
+     * @param x user-world x
+     * @param y user-world y
+     * @return the 5 closest event locations and distance
+     */
     public int[][] getClosestEvents(int x, int y){
-        //TODO:
-        
-        // 1. convert the user supplied coordinates
+
+        // 1. convert to local coordinates
         int[] x_y = convertCoordinatesToLocal(x, y);
-        System.out.println("Convert to: " + x_y[0] + " " + x_y[1]);
-        // 2. get closest events by kernel
+        //System.out.println("Convert to: " + x_y[0] + " " + x_y[1]);
+        
+        // 2. get closest events from kernel
         ArrayList<Integer> nearbyEvents = getNearbyEvents(x_y[0],x_y[1]);
         
-        // 3. Get manhattan distance for these events
-        System.out.println("Size:" + nearbyEvents.size());
-        //x rows, 3 columns
-        //size needs to be adjusted
+        // 3. sort closest events into closest 5 by distance
         double size = nearbyEvents.size()/2.0;
         int[][] closeEvents = new int[3][(int)size];
+        
         //parse all received events
         int j = 0;
         for(int i = 0; i < nearbyEvents.size(); i += 2){
-            //System.out.print(i + ", " + (i+1) + " ");
-            System.out.println(nearbyEvents.get(i) + 
-                    " " + nearbyEvents.get(i+1) + ", ");
             //get individual distance
             float dist = getManhattanDistance(x_y[0],x_y[1], nearbyEvents.get(i), 
                     nearbyEvents.get(i + 1));
             closeEvents[0][j] = (int)dist;
             closeEvents[1][j] = nearbyEvents.get(i);
             closeEvents[2][j++] = nearbyEvents.get(i+1);
-            System.out.println("Distance: " + dist);
+            //System.out.println("Distance: " + dist);
             
         }
-        // 4. locate the five closest
-        for(int i = 0; i < 3; i++){
-            for(j = 0; j < size; j++){
-                System.out.print(closeEvents[i][j] + " ");
-            }
-            System.out.println("");
-        }
-        
-        //merge sort closeArray
-        //merge(closeEvents, 0, (int)size/2, (int)size-1);
+
+        //4. Sort by distance (closest first)
         sort(closeEvents, 0, (int)size-1);
         
-        //print the merged array
-        //System.out.println("sorted");
-//        for(int i = 0; i < 3; i++){
-//            for(int k = 0; k < mergeArray[0].length; k++){
-//                System.out.print(mergeArray[i][k] + " ");
-//            }
-//            System.out.println("");
-//        }
+        // Array to return data 5 closest events
         int[][] returnArr = new int[3][5];
+        
         //populate returnArr
         for(int i = 0; i < returnArr.length; i++){
             for(int k = 0; k < returnArr[0].length; k++){
@@ -200,9 +198,7 @@ public class EventManager {
      * @param m middle
      * @param r rightmost
      */
-    public void merge(int[][] arr, int l, int m, int r){
-        //System.out.println("\nMerge:");
-        //System.out.println(arr[0][l] + " " + arr[0][m] + " " + arr[0][r]);
+    private void merge(int[][] arr, int l, int m, int r){
         
         // Find sizes of two subarrays to be merged
         int n1 = m - l + 1;
@@ -223,7 +219,7 @@ public class EventManager {
             R[1][j] = arr[1][m + 1+ j];
             R[2][j] = arr[2][m + 1+ j];
         }
-        /* Merge the temp arrays */
+        //Merge the temp arrays 
  
         // Initial indexes of first and second subarrays
         int i = 0, j = 0;
@@ -274,39 +270,25 @@ public class EventManager {
     }
    
     /**
-     * 
-     * @param x
-     * @param y 
+     * Gets all available tickets for an event.
+     * @param row local x
+     * @param col local y
+     * @return a list of tickets in USD.
      */
-    public String[] getEventTickets(int x, int y){
-        Event anEvent = eventArr[x][y];
+    public String[] getEventTickets(int row, int col){
+        //local event
+        Event anEvent = eventGrid[row][col];
+        //get tickets for event
         String[] tickets = anEvent.getTickets();
+        //rerturn tickets
         return tickets;
     }
     
     public int getEventID(int x, int y){
         
-        Event anEvent = eventArr[x][y];
+        Event anEvent = eventGrid[x][y];
         return anEvent.getId();
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
    /**
     * Main merge sort function that sorts [l...r]
@@ -314,7 +296,7 @@ public class EventManager {
     * @param l
     * @param r 
     */
-    public void sort(int arr[][], int l, int r)
+    private void sort(int arr[][], int l, int r)
     {
         if (l < r)
         {
@@ -332,88 +314,89 @@ public class EventManager {
     }
     
     /**
-     * Generates a kernel a dynamically increasing kernel
+     * Retrieves events close to user (excluding user's location)
      * Finds the events in this kernel
-     * @param offsRow the user's x
-     * @param offsCol the user's y
+     * @param userRow the user's x
+     * @param userCol the user's y
      * @return an List of X,Y coordinates, whitespace separated
      */
             
-    public ArrayList<Integer> getNearbyEvents(int offsRow, int offsCol){
+    private ArrayList<Integer> getNearbyEvents(int userRow, int userCol){
+        
+        final int UP_BOUND = WORLD_SIZE-1;
+        final int LOW_BOUND = 0;
         //local variables
-        ArrayList<Integer> arrList = new ArrayList<>();
+        ArrayList<Integer> nearbyEvents = new ArrayList<>();
+        //counts tickets found
         int ticketsFound = 0;
         //initial range for 3x3 kernel
         int range = 1;
         //initialze start positions
         int startRow = 0;
         int startCol = 0;
+        
+        
         //iterate until 5 or more ave been found
         while(ticketsFound <= 5){
-            //reset tickets count
+            
+            // Reset tickets count
             ticketsFound = 0;
-            //reset arraylist
-            arrList.clear();
-           //System.out.println("new loop " + range);
-           
-            if((offsRow - range) >= 0 && (offsRow - range) < 20){
-                startRow = offsRow-range;
-                System.out.println("case 0 " + startRow);
+            
+            // Clear array lsit
+            nearbyEvents.clear();
+            
+            // Check boundary cases to ensure that kernel does not
+            // step outside the array.
+            if((userRow - range) >= LOW_BOUND && (userRow - range) < UP_BOUND){
+                startRow = userRow-range;
             }
             
-            if((offsCol - range) >= 0 && (offsCol - range) < 20){
-                startCol = offsRow-range;
-                System.out.println("case 1 " + startCol);
+            if((userCol - range) >= LOW_BOUND && (userCol - range) < UP_BOUND){
+                startCol = userRow-range;
             }
            
             //check boundary cases for kernel offset
-            if((offsRow - range) < 0 || startRow < 0){
-                startRow = 0;
-                System.out.println("case 2 " + startRow);
+            if((userRow - range) < LOW_BOUND || startRow < LOW_BOUND){
+                startRow = LOW_BOUND;
             }
             
-            if((offsCol - range) < 0 || startCol < 0){
-                startCol = 0;
-                System.out.println("case 3 " + startCol);
+            if((userCol - range) < LOW_BOUND || startCol < LOW_BOUND){
+                startCol = LOW_BOUND;
             }
             
-            if(offsCol >= 20 || startCol >=20){
-                startCol = 20-range;
-                System.out.println("case 4 " + startCol);
+            if(userCol >= UP_BOUND || startCol >=UP_BOUND){
+                startCol = UP_BOUND-range;
             }
             
-            if(offsRow >= 20 || startRow >= 20){
-                startRow = 20-range;
-                System.out.println("Case 5 " + startRow);
+            if(userRow >= UP_BOUND || startRow >= UP_BOUND){
+                startRow = UP_BOUND-range;
             }
             
             //traverse kernel searching for events
             for(int i = startRow; i <= startRow+range; i++){
                 for(int j = startCol; j <=startCol+range;j++){
-                    System.out.println("start Row " + startRow);
-                    System.out.println("Start Col " + startCol);
-                    //exclude user position
-                    if(i == offsRow && j == offsCol){
-                        //System.out.println("Your position");
-
+                    
+                    // Exclude user position
+                    if(i == userRow && j == userCol){
+                        //do nothing
                     } else {
-                        
-                        if(gridShadowArr[i][j] == 1){
-                            //add both coordinates
-                            arrList.add(i);
-                            arrList.add(j);
+                        // An event was found
+                        if(mapGrid[i][j] == 1){
+                            // Add coordinates
+                            nearbyEvents.add(i);
+                            nearbyEvents.add(j);
+                            // Increment couter
                             ++ticketsFound;
                         }
-                        //System.out.println("Visiting "  + i + " " + j);
-                        //System.out.println("Value" + arr[i][j]);
                     }
-                }//inner for loop
-            }//outer for loop
+                }// End inner loop
+            }// End outer loop
            
-            //increase kernel range if < 5 matches
+            // Increase kernel range if < 5 matches
             ++range;
-        }
-        //a list of events
-        return arrList;
+        } // Loop exits when >= 5 events have been located.
+        
+        // Return all nearby events within kernel
+        return nearbyEvents;
     } 
 }
